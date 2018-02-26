@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# Author: Adrián García
+#
+# Inspired in the work of https://stackoverflow.com/questions/1894347/how-to-upload-ftp-files-to-server-in-a-bash-script
+#
+# This is an example of FTP file uploader.
+#
+# This only work with ftp servers with default user.
+#
+# Do not use on Internet!!!
+
+HOST='192.168.10.210'
+USER='usuario'
+PASSWORD='usuario'
+BASEFILE='Tonto_el_que_lo_lea'
+NUMEROALEATORIO='1'
+
+function sube_fichero() {
+        ftp -n $1 <<END_SCRIPT
+quote USER $USER
+quote PASS $PASSWORD
+binary
+put $FILE
+close
+END_SCRIPT
+}
+
+function crea_fichero() {
+	FILE="$BASEFILE-$RANDOM"
+        dd if=/dev/zero of=$FILE bs=1M count=1
+        HOST="192.168.10.$1"
+        echo "Subo el fichero a $HOST con el nombre $FILE"
+        sube_fichero $HOST
+        rm $FILE
+
+}
+
+while true
+do
+	for x in `seq 201 1 230`
+	do
+		crea_fichero $x &
+	done
+
+	sleep 1
+done
+
